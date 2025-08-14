@@ -1,0 +1,6 @@
+
+# AccessiblityPDf
+
+This Python project enables hands-free PDF navigation using facial gestures, designed for accessibility, particularly for users with physical limitations. It uses computer vision (OpenCV, dlib) to detect head movements and facial expressions, such as head tilts, blinks, winks, smiles, or raised eyebrows, to control PDF actions like turning pages, zooming, or resetting zoom. The application features a customizable Tkinter-based GUI where users can map gestures to actions, adjust sensitivity thresholds, and select a PDF file.
+
+GUI STILL A WORK IN PROGRESS
