@@ -9,10 +9,10 @@ from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
 import fitz  # PyMuPDF
 
-# --- Configuration & State Management (UNCHANGED LOGIC) ---
+# configuration
 class AppConfig:
     def __init__(self):
-        # Default Mappings
+        # Default Mapping, nothing changes
         self.gesture_actions = {
             "look_right": "next_page",
             "look_left": "prev_page",
@@ -26,14 +26,14 @@ class AppConfig:
             "left_wink": "none"
         }
         
-        # Default Sensitivities & Refractory Periods
+        # default sensitivity and refractory period
         self.thresholds = {
             "YAW_THRESHOLD_RIGHT": -30,    # Degrees (Negative = Right)
             "YAW_THRESHOLD_LEFT": 30,      # Degrees (Positive = Left)
             "PITCH_THRESHOLD_UP": -20,     # Degrees (Negative = Up)
             "PITCH_THRESHOLD_DOWN": 20,    # Degrees (Positive = Down)
             
-            # Duration required to trigger (Seconds)
+            # duration to trigger
             "LONG_BLINK_DURATION": 1.5,
             "RIGHT_WINK_DURATION": 1.0,
             "LEFT_WINK_DURATION": 1.0,
@@ -41,11 +41,11 @@ class AppConfig:
             "OPEN_MOUTH_DURATION": 1.0,
             "RAISED_EYEBROWS_DURATION": 1.0,
             
-            # Refractory Periods (Cooldowns)
+            # Refractory Periods/ action potential style
             "ACTION_COOLDOWN": 2.0,             # Time to wait after turning a page
             "CONTINUOUS_ACTION_INTERVAL": 0.15, # Speed for scroll/zoom
             
-            # Detection Sensitivity
+            #  Sensitivity
             "EYE_AR_THRESH": 0.25,
             "MOUTH_AR_THRESH": 0.6,
             "SMILE_THRESHOLD": 0.02
@@ -77,7 +77,7 @@ class AppConfig:
 
 config = AppConfig()
 
-# --- MediaPipe Logic (UNCHANGED) ---
+# mediapipe logic
 def get_aspect_ratio(p1, p2, p3, p4, p5, p6):
     A = np.linalg.norm(p2 - p6); B = np.linalg.norm(p3 - p5); C = np.linalg.norm(p1 - p4)
     return (A + B) / (2.0 * C) if C != 0 else 0
@@ -110,11 +110,11 @@ class ConfigurationUI:
         self.master.geometry("950x750")
         self.config.load_config()
         
-        # Apply Modern Theme
+        # user interface
         self.style = ttk.Style()
         self.style.theme_use('clam')
         
-        # Custom Styles
+        # interface
         self.style.configure("TFrame", background="#f0f0f0")
         self.style.configure("TLabel", background="#f0f0f0", font=("Segoe UI", 10))
         self.style.configure("Header.TLabel", font=("Segoe UI", 16, "bold"), foreground="#333")
@@ -125,17 +125,17 @@ class ConfigurationUI:
         self.style.configure("TLabelframe", background="#f0f0f0", padding=15)
         self.style.configure("TLabelframe.Label", font=("Segoe UI", 11, "bold"), foreground="#0078D7", background="#f0f0f0")
 
-        # Main Container
+        # container
         main_container = ttk.Frame(master, padding=20)
         main_container.pack(fill=tk.BOTH, expand=True)
 
-        # Branding Header
+        #  Header
         header_frame = ttk.Frame(main_container)
         header_frame.pack(fill=tk.X, pady=(0, 20))
         ttk.Label(header_frame, text="AccessibilityPDF", style="Header.TLabel").pack(side=tk.LEFT)
         ttk.Label(header_frame, text=" | by Michael Li", style="SubHeader.TLabel", foreground="#888").pack(side=tk.LEFT, padx=5, pady=(4,0))
 
-        # Notebook (Tabs)
+        # Notebook 
         notebook = ttk.Notebook(main_container)
         notebook.pack(fill=tk.BOTH, expand=True)
         
@@ -147,7 +147,7 @@ class ConfigurationUI:
         notebook.add(self.tab_sense, text="   Sensitivities & Timing   ")
         self.setup_sensitivity_tab()
         
-        # Footer Buttons
+        # Footer 
         btn_frame = ttk.Frame(main_container, padding=(0, 20, 0, 0))
         btn_frame.pack(fill=tk.X)
         ttk.Button(btn_frame, text="Reset Defaults", command=self.reset_defaults).pack(side=tk.LEFT)
@@ -159,7 +159,7 @@ class ConfigurationUI:
         scroll_container = ttk.Frame(self.tab_map)
         scroll_container.pack(fill=tk.BOTH, expand=True)
         
-        # Two-column layout for mappings
+        # layout for mappings
         left_col = ttk.Frame(scroll_container)
         left_col.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
         right_col = ttk.Frame(scroll_container)
@@ -181,17 +181,17 @@ class ConfigurationUI:
             row_frame = ttk.Frame(parent, padding=(10, 8), relief="flat", style="TFrame")
             row_frame.pack(fill=tk.X, pady=5)
             
-            # Label
+            # label
             ttk.Label(row_frame, text=name, width=20, font=("Segoe UI", 10, "bold")).pack(side=tk.LEFT)
             
-            # Arrow Decorator
+            #  Decorator
             ttk.Label(row_frame, text="→", foreground="#999").pack(side=tk.LEFT, padx=10)
             
-            # Dropdown
+            # dropdown
             var = tk.StringVar(value=self.config.gesture_actions.get(key, "none"))
             self.mapping_vars[key] = var
             
-            # Cleanup action names for display
+            # 
             display_actions = [a.replace("_", " ").title() for a in self.config.available_actions]
             current_display = self.config.gesture_actions.get(key, "none").replace("_", " ").title()
             
@@ -201,7 +201,7 @@ class ConfigurationUI:
             
             # Bind update to variable
             def on_change(event):
-                # Convert back to snake_case
+                # convert back to snake
                 val = cb.get().lower().replace(" ", "_")
                 var.set(val)
             cb.bind("<<ComboboxSelected>>", on_change)
@@ -218,7 +218,7 @@ class ConfigurationUI:
         scroll_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=scroll_frame, anchor="nw", width=canvas.winfo_reqwidth())
         
-        # Ensure canvas resizes with window
+        # resiziing
         def on_canvas_configure(event):
             canvas.itemconfig(1, width=event.width)
         canvas.bind("<Configure>", on_canvas_configure)
@@ -292,7 +292,7 @@ class ConfigurationUI:
         app = PDFReaderApp(root, self.config)
         root.mainloop()
 
-# --- Integrated PDF Reader (Professional Look) ---
+# integrated pdf reader with professional user interface!
 class PDFReaderApp:
     def __init__(self, root, config):
         self.root = root
@@ -300,7 +300,7 @@ class PDFReaderApp:
         self.root.title("AccessibilityPDF by Michael Li - Reader")
         self.root.geometry("1200x900")
         
-        # Apply Dark Theme for Reader
+        # dark theme
         self.root.configure(bg="#2E2E2E")
         self.style = ttk.Style()
         self.style.theme_use('clam')
@@ -311,7 +311,7 @@ class PDFReaderApp:
 
         self.doc = None; self.page_num = 0; self.zoom = 1.0; self.fullscreen = False
         
-        # Timing State
+        # timing State
         self.last_act_time = 0
         self.last_cont_time = 0
         
@@ -330,7 +330,7 @@ class PDFReaderApp:
         self.process()
 
     def setup_ui(self):
-        # Top Toolbar
+        # toolbar
         bar = ttk.Frame(self.root, style="Reader.TFrame", padding=10)
         bar.pack(side=tk.TOP, fill=tk.X)
         
@@ -340,17 +340,17 @@ class PDFReaderApp:
         self.lbl_info = ttk.Label(bar, text="No PDF Loaded", style="Reader.TLabel", font=("Segoe UI", 11, "bold"))
         self.lbl_info.pack(side=tk.LEFT, padx=20)
         
-        # Branding in Viewer
+        # viewer
         ttk.Label(bar, text="AccessibilityPDF by Michael Li", style="Reader.TLabel", foreground="#888").pack(side=tk.RIGHT)
 
-        # Main Canvas Area
+        # canvas area
         self.canvas_frame = tk.Frame(self.root, bg="#2E2E2E")
         self.canvas_frame.pack(fill=tk.BOTH, expand=True)
         
         self.canvas = tk.Canvas(self.canvas_frame, bg="#2E2E2E", highlightthickness=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
         
-        # Bottom Status Bar
+        # bottom status
         status_bar = ttk.Frame(self.root, style="Reader.TFrame", padding=(10, 5))
         status_bar.pack(side=tk.BOTTOM, fill=tk.X)
         
@@ -360,7 +360,7 @@ class PDFReaderApp:
         self.lbl_status = ttk.Label(status_bar, text="System: Ready", style="Reader.TLabel")
         self.lbl_status.pack(side=tk.RIGHT)
         
-        # Webcam Overlay (Floating)
+        # Webcam Overlay 
         self.cam_lbl = tk.Label(self.root, bg="black", borderwidth=2, relief="solid")
         self.cam_lbl.place(relx=1.0, rely=1.0, anchor="se", x=-20, y=-50)
 
@@ -390,7 +390,7 @@ class PDFReaderApp:
     def do_action(self, act):
         if act == "none": return
         
-        # Visual Feedback
+        # feedback at bottom for actions
         clean_name = act.replace("_", " ").upper()
         self.lbl_action.config(text=f"ACTION: {clean_name}")
         
@@ -426,7 +426,7 @@ class PDFReaderApp:
             lms = res.multi_face_landmarks[0]
             pts = np.array([[int(p.x*w), int(p.y*h)] for p in lms.landmark])
             
-            # --- Detect States ---
+            # detection
             state = {"eyes":"open", "mouth":"closed", "eyebrows":"normal"}
             
             # Eyes/Blink
@@ -456,9 +456,9 @@ class PDFReaderApp:
             # Pose
             pitch, yaw, roll = get_head_pose(lms, w, h)
             
-            # --- LOGIC ENGINE (PRESERVED) ---
+            # logic 
             def check(g, cond):
-                # Update State
+                # Update 
                 if cond:
                     if not self.gesture_active[g]:
                         self.gesture_active[g] = True
@@ -469,21 +469,21 @@ class PDFReaderApp:
                     self.gesture_dur[g] = 0
                     return False
                 
-                # Check Triggers
+                # Checking triggers
                 act = self.config.gesture_actions.get(g, "none")
                 if act == "none": return False
                 
-                # Determine Action Type
+                # Determinng action type
                 is_continuous_act = act in ["scroll_up", "scroll_down", "zoom_in", "zoom_out"]
                 
                 if is_continuous_act:
-                    # USE FAST TIMER (0.15s)
+                    # fast
                     if cur_t - self.last_cont_time > self.config.thresholds["CONTINUOUS_ACTION_INTERVAL"]:
                         self.do_action(act)
                         self.last_cont_time = cur_t
                         return True
                 else:
-                    # USE SLOW COOLDOWN (1.5s)
+                    # cooldown
                     req_dur = self.config.thresholds.get(f"{g.upper()}_DURATION", 0.0)
                     if g == "raise_eyebrows": req_dur = self.config.thresholds.get("RAISED_EYEBROWS_DURATION", 1.0)
                     
